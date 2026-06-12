@@ -15,6 +15,7 @@ zfs destroy rpool /var/lib/vz
 zfs create -o quota=25G /var/lib/vz
 
 echo "+~~~~~~~~~~~~~~~~~~~~~~~~~~~~+"
+
 echo "Corrigindo Mirror/Reposiórios"
 
 echo "deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware" > /etc/apt/sources.list
@@ -34,7 +35,7 @@ echo "iface nic0 inet manual" >> /etc/network/interfaces
 echo "# Interface Virtual para WAN" >> /etc/network/interfaces
 echo "auto vmbr0" >> /etc/network/interfaces
 echo "iface vmbr0 inet static" >> /etc/network/interfaces
-echo "	address 192.168.0.223/24" >> /etc/network/interfaces
+echo "	address 192.168.1.1/24" >> /etc/network/interfaces
 echo "	gateway 192.168.0.1" >> /etc/network/interfaces
 echo "	bridge-ports nic0" >> /etc/network/interfaces
 echo "	bridge-stp off" >> /etc/network/interfaces
