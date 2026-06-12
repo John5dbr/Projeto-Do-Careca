@@ -15,4 +15,4 @@ tailscale up
 echo "=================="
 
 figlet Execucao Concluida
-echo "Exemplo de comando para acesso remoto: sudo ssh Usuario@Ip-Do-Servidor"
+echo "Exemplo de comando para acesso remoto:  ssh Usuario@Ip-Do-Servidor"

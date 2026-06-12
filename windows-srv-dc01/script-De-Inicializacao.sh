@@ -3,7 +3,7 @@
 email="";
 name="";
 
-sudo apt install git figlet -y
+ apt install git figlet -y
 
 read -p "Email do usuário no GitHub: " email
 git config --global user.email "$email"
