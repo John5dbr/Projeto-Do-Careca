@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C.V — Intranet</title>
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --red:        #B91C1C;
+  --red-dark:   #7F1D1D;
+  --red-mid:    #DC2626;
+  --red-soft:   #FEE2E2;
+  --red-muted:  #FECACA;
+  --black:      #0F0F0F;
+  --gray-900:   #1C1C1C;
+  --gray-700:   #374151;
+  --gray-500:   #6B7280;
+  --gray-300:   #D1D5DB;
+  --gray-100:   #F3F4F6;
+  --white:      #FFFFFF;
+  --surface:    #FFFFFF;
+  --surface2:   #F9FAFB;
+  --border:     #E5E7EB;
+  --radius-sm:  6px;
+  --radius:     10px;
+  --radius-lg:  16px;
+  --sidebar-w:  230px;
+  --topbar-h:   56px;
+  --font:       'Segoe UI', system-ui, -apple-system, sans-serif;
+  --transition: .18s ease;
+}
+
+html, body { height: 100%; font-family: var(--font); font-size: 14px; background: var(--gray-100); color: var(--gray-900); }
+
+/* ── LOGIN PAGE ── */
+#login-page {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--red-dark);
+  position: fixed; inset: 0; z-index: 999;
+}
+.login-box {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 44px 40px; width: 100%; max-width: 380px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.25);
+}
+.login-logo { text-align: center; margin-bottom: 28px; }
+.login-logo .brand { font-size: 36px; font-weight: 700; color: var(--red); letter-spacing: -1px; line-height: 1; }
+.login-logo .brand-full { font-size: 12px; color: var(--gray-500); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+.login-divider { width: 32px; height: 2px; background: var(--red); margin: 14px auto 24px; border-radius: 2px; }
+.login-label { font-size: 12px; font-weight: 600; color: var(--gray-700); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+.login-input {
+  width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 14px; color: var(--gray-900);
+  background: var(--surface2); outline: none; transition: border-color var(--transition);
+  font-family: var(--font);
+}
+.login-input:focus { border-color: var(--red); background: var(--white); }
+.login-field { margin-bottom: 16px; }
+.login-btn {
+  width: 100%; padding: 11px; background: var(--red); color: var(--white);
+  border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600;
+  cursor: pointer; margin-top: 8px; letter-spacing: .3px; transition: background var(--transition);
+}
+.login-btn:hover { background: var(--red-dark); }
+.login-hint { text-align: center; margin-top: 20px; font-size: 12px; color: var(--gray-500); }
+.login-error {
+  background: var(--red-soft); border: 1px solid var(--red-muted); color: var(--red-dark);
+  border-radius: var(--radius-sm); padding: 9px 12px; font-size: 13px;
+  margin-bottom: 14px; display: none;
+}
+
+/* ── APP SHELL ── */
+#app { display: none; height: 100vh; overflow: hidden; }
+#app.visible { display: flex; }
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: var(--sidebar-w); background: var(--red-dark); display: flex;
+  flex-direction: column; flex-shrink: 0; overflow-y: auto;
+}
+.sidebar-header { padding: 20px 18px 16px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.sidebar-brand { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.sidebar-sub { color: rgba(255,255,255,.4); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+.sidebar-nav { flex: 1; padding: 14px 0; }
+.nav-section-label {
+  padding: 10px 18px 4px; font-size: 9px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.3);
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; color: rgba(255,255,255,.65);
+  cursor: pointer; border-left: 3px solid transparent;
+  transition: all var(--transition); font-size: 13.5px; font-weight: 400;
+  user-select: none;
+}
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.13); color: #fff; border-left-color: #fff; font-weight: 500; }
+.sidebar-footer { padding: 16px 18px; border-top: 1px solid rgba(255,255,255,.1); }
+.user-card { display: flex; align-items: center; gap: 10px; }
+.user-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(255,255,255,.2); display: flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 13px; font-weight: 600; flex-shrink: 0;
+}
+.user-name { color: #fff; font-size: 13px; font-weight: 500; }
+.user-dept { color: rgba(255,255,255,.4); font-size: 11px; }
+.logout-btn {
+  margin-top: 10px; width: 100%; padding: 7px; border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.08); border: none; color: rgba(255,255,255,.6);
+  font-size: 12px; cursor: pointer; transition: all var(--transition); font-family: var(--font);
+}
+.logout-btn:hover { background: rgba(255,255,255,.15); color: #fff; }
+
+/* ── MAIN AREA ── */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* TOPBAR */
+#topbar {
+  height: var(--topbar-h); background: var(--white); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; flex-shrink: 0;
+}
+.topbar-title { font-size: 16px; font-weight: 600; color: var(--gray-900); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.topbar-date { font-size: 12px; color: var(--gray-500); margin-right: 8px; }
+.topbar-icon-btn {
+  width: 34px; height: 34px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--transition); color: var(--gray-500);
+  position: relative;
+}
+.topbar-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.topbar-icon-btn:hover { background: var(--gray-100); color: var(--gray-900); border-color: var(--gray-300); }
+.notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: var(--red); border-radius: 50%; border: 1.5px solid var(--white); }
+
+/* CONTENT */
+#content { flex: 1; overflow-y: auto; padding: 24px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── COMMON COMPONENTS ── */
+.card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+}
+.card-title {
+  font-size: 13px; font-weight: 600; color: var(--gray-700);
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title svg { width: 16px; height: 16px; stroke: var(--red); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.section-grid { display: grid; gap: 16px; }
+.col-2 { grid-template-columns: 1fr 1fr; }
+.col-3 { grid-template-columns: repeat(3, 1fr); }
+
+/* TAG / BADGE */
+.tag {
+  display: inline-block; padding: 2px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+}
+.tag-red { background: var(--red-soft); color: var(--red-dark); }
+.tag-yellow { background: #FEF3C7; color: #92400E; }
+.tag-green { background: #D1FAE5; color: #065F46; }
+.tag-blue { background: #DBEAFE; color: #1E40AF; }
+.tag-gray { background: var(--gray-100); color: var(--gray-700); }
+
+/* BTN */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px;
+  font-weight: 500; cursor: pointer; border: 1px solid var(--border);
+  background: var(--white); color: var(--gray-700); transition: all var(--transition);
+  font-family: var(--font);
+}
+.btn:hover { background: var(--gray-100); }
+.btn-primary { background: var(--red); border-color: var(--red); color: #fff; }
+.btn-primary:hover { background: var(--red-dark); border-color: var(--red-dark); }
+.btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.btn-sm { padding: 5px 11px; font-size: 12px; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* ══════════════════════════════════
+   MURAL PAGE
+══════════════════════════════════ */
+.mural-hero {
+  background: var(--red-dark); border-radius: var(--radius-lg);
+  padding: 28px 32px; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.mural-hero-text h2 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.mural-hero-text p { font-size: 14px; color: rgba(255,255,255,.6); }
+.mural-hero-badge {
+  background: rgba(255,255,255,.12); border-radius: var(--radius);
+  padding: 12px 20px; text-align: center; flex-shrink: 0;
+}
+.mural-hero-badge .big { font-size: 28px; font-weight: 700; color: #fff; }
+.mural-hero-badge .small { font-size: 11px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; }
+
+.avisos-list { display: flex; flex-direction: column; gap: 12px; }
+.aviso-item {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 18px; border-left: 4px solid var(--border); transition: border-left-color var(--transition);
+}
+.aviso-item.urgente { border-left-color: var(--red); }
+.aviso-item.info { border-left-color: #3B82F6; }
+.aviso-item.aviso { border-left-color: #F59E0B; }
+.aviso-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; gap: 12px; }
+.aviso-titulo { font-size: 14px; font-weight: 600; color: var(--gray-900); }
+.aviso-meta { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
+.aviso-corpo { font-size: 13.5px; color: var(--gray-700); line-height: 1.6; }
+
+.links-rapidos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.link-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 12px; text-align: center; cursor: pointer; transition: all var(--transition);
+}
+.link-card:hover { border-color: var(--red); transform: translateY(-2px); }
+.link-card svg { width: 24px; height: 24px; stroke: var(--red); fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; margin: 0 auto 8px; display: block; }
+.link-card span { font-size: 12px; color: var(--gray-700); font-weight: 500; }
+
+/* ══════════════════════════════════
+   ATIVIDADES PAGE
+══════════════════════════════════ */
+.atividades-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filter-select {
+  padding: 7px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--white); color: var(--gray-700); font-size: 13px;
+  cursor: pointer; font-family: var(--font); outline: none;
+}
+.filter-select:focus { border-color: var(--red); }
+
+.atividade-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start;
+  transition: border-color var(--transition);
+}
+.atividade-card:hover { border-color: var(--gray-300); }
+.atv-icon {
+  width: 38px; height: 38px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.atv-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.atv-icon.tarefa { background: #EDE9FE; color: #5B21B6; }
+.atv-icon.reuniao { background: #DBEAFE; color: #1E40AF; }
+.atv-icon.entrega { background: #D1FAE5; color: #065F46; }
+.atv-icon.prazo { background: var(--red-soft); color: var(--red-dark); }
+.atv-body { flex: 1; }
+.atv-titulo { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 3px; }
+.atv-desc { font-size: 13px; color: var(--gray-500); line-height: 1.5; margin-bottom: 8px; }
+.atv-footer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.atv-date { font-size: 12px; color: var(--gray-500); display: flex; align-items: center; gap: 4px; }
+.atv-date svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+.atv-resp { font-size: 12px; color: var(--gray-500); }
+
+.atividades-grid { display: flex; flex-direction: column; gap: 10px; }
+
+/* ══════════════════════════════════
+   CALENDÁRIO PAGE
+══════════════════════════════════ */
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+}
+.cal-month-nav { display: flex; align-items: center; gap: 12px; }
+.cal-month-label { font-size: 16px; font-weight: 600; color: var(--gray-900); min-width: 160px; text-align: center; }
+.cal-nav-btn {
+  width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition); color: var(--gray-700);
+}
+.cal-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cal-nav-btn:hover { background: var(--gray-100); }
+
+.cal-grid-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--surface2); }
+.cal-wd { padding: 10px 0; text-align: center; font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: .5px; }
+.cal-days { display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-day {
+  min-height: 82px; padding: 8px; border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); cursor: pointer; transition: background var(--transition);
+  position: relative;
+}
+.cal-day:hover { background: var(--surface2); }
+.cal-day.other-month { background: var(--surface2); }
+.cal-day.other-month .cal-day-num { color: var(--gray-300); }
+.cal-day.today { background: var(--red-soft); }
+.cal-day.today .cal-day-num { color: var(--red); font-weight: 700; }
+.cal-day.selected { background: #EDE9FE; }
+.cal-day-num { font-size: 13px; color: var(--gray-700); margin-bottom: 4px; }
+.cal-event {
+  font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;
+}
+.cal-event.red { background: var(--red-soft); color: var(--red-dark); }
+.cal-event.blue { background: #DBEAFE; color: #1E40AF; }
+.cal-event.green { background: #D1FAE5; color: #065F46; }
+.cal-event.yellow { background: #FEF3C7; color: #92400E; }
+
+.cal-sidebar { display: flex; flex-direction: column; gap: 16px; }
+.upcoming-list { display: flex; flex-direction: column; gap: 8px; }
+.upcoming-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.upcoming-item:last-child { border-bottom: none; }
+.upcoming-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.upcoming-text { font-size: 13px; color: var(--gray-900); font-weight: 500; margin-bottom: 2px; }
+.upcoming-sub { font-size: 12px; color: var(--gray-500); }
+
+.cal-layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; }
+
+/* ══════════════════════════════════
+   PERFIL PAGE
+══════════════════════════════════ */
+.perfil-header {
+  background: var(--red-dark); border-radius: var(--radius-lg);
+  padding: 28px 32px; display: flex; align-items: center; gap: 24px; margin-bottom: 20px;
+}
+.perfil-avatar-big {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(255,255,255,.2); display: flex; align-items: center;
+  justify-content: center; font-size: 26px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.perfil-info h2 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.perfil-info p { font-size: 13px; color: rgba(255,255,255,.6); }
+.perfil-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--gray-700); text-transform: uppercase; letter-spacing: .4px; }
+.form-group input, .form-group select {
+  padding: 9px 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--gray-900); background: var(--surface2);
+  font-family: var(--font); outline: none; transition: border-color var(--transition);
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--red); background: var(--white); }
+.form-group input:disabled { color: var(--gray-500); cursor: not-allowed; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gray-500); }
+
+/* ── NOTIFICATION PANEL ── */
+#notif-panel {
+  position: fixed; top: calc(var(--topbar-h) + 8px); right: 16px;
+  width: 320px; background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,.12);
+  z-index: 100; display: none; overflow: hidden;
+}
+#notif-panel.open { display: block; }
+.notif-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--gray-900); display: flex; justify-content: space-between; align-items: center; }
+.notif-clear { font-size: 11px; color: var(--red); cursor: pointer; font-weight: 500; }
+.notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+.notif-item:last-child { border-bottom: none; }
+.notif-bullet { width: 8px; height: 8px; border-radius: 50%; background: var(--red); margin-top: 5px; flex-shrink: 0; }
+.notif-text { font-size: 13px; color: var(--gray-700); line-height: 1.4; }
+.notif-time { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--gray-900); color: #fff; padding: 10px 20px; border-radius: var(--radius);
+  font-size: 13px; z-index: 9999; transition: transform .3s ease; pointer-events: none;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="brand">C.V</div>
+      <div class="brand-full">Cabeamento Verificado</div>
+      <div class="login-divider"></div>
+    </div>
+    <div id="login-error" class="login-error">Usuário ou senha incorretos.</div>
+    <div class="login-field">
+      <label class="login-label" for="inp-user">Usuário</label>
+      <input id="inp-user" class="login-input" type="text" placeholder="seu.nome" autocomplete="username" />
+    </div>
+    <div class="login-field">
+      <label class="login-label" for="inp-pass">Senha</label>
+      <input id="inp-pass" class="login-input" type="password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar na intranet</button>
+    <p class="login-hint">Acesso restrito a colaboradores C.V</p>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">C.V</div>
+      <div class="sidebar-sub">Intranet</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <div class="nav-item active" data-page="mural">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Mural Geral
+      </div>
+      <div class="nav-item" data-page="atividades">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        Atividades
+      </div>
+      <div class="nav-item" data-page="calendario">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendário
+      </div>
+      <div class="nav-section-label" style="margin-top:8px">Pessoal</div>
+      <div class="nav-item" data-page="perfil">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Meu Perfil
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="sidebar-avatar">--</div>
+        <div>
+          <div class="user-name" id="sidebar-name">—</div>
+          <div class="user-dept" id="sidebar-dept">—</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Sair da conta</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="topbar">
+      <div class="topbar-title" id="topbar-title">Mural Geral</div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date"></span>
+        <div class="topbar-icon-btn" onclick="toggleNotif()" title="Notificações">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-dot" id="notif-dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="content">
+
+      <!-- ══ MURAL ══ -->
+      <div class="page active" id="page-mural">
+        <div class="mural-hero">
+          <div class="mural-hero-text">
+            <h2 id="mural-saudacao">Olá, colaborador!</h2>
+            <p id="mural-subtitulo">Confira os avisos e novidades da empresa.</p>
+          </div>
+          <div class="mural-hero-badge">
+            <div class="big" id="mural-dia">—</div>
+            <div class="small" id="mural-mes">—</div>
+          </div>
+        </div>
+
+        <div class="section-grid col-2" style="margin-bottom:16px">
+          <div>
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              Avisos da Empresa
+            </div>
+            <div class="avisos-list" id="avisos-list">
+              <!-- preenchido via JS -->
+            </div>
+          </div>
+          <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:20px 20px 12px">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Acesso Rápido
+              </div>
+            </div>
+            <div class="links-rapidos" style="padding:0 16px 20px">
+              <div class="link-card" onclick="goPage('atividades')">
+                <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                <span>Atividades</span>
+              </div>
+              <div class="link-card" onclick="goPage('calendario')">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Calendário</span>
+              </div>
+              <div class="link-card" onclick="goPage('perfil')">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Meu Perfil</span>
+              </div>
+              <div class="link-card" onclick="showToast('Funcionalidade em breve!')">
+                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                <span>Comunicados</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ATIVIDADES ══ -->
+      <div class="page" id="page-atividades">
+        <div class="atividades-filters">
+          <select class="filter-select" id="filtro-tipo" onchange="renderAtividades()">
+            <option value="">Todos os tipos</option>
+            <option value="tarefa">Tarefa</option>
+            <option value="reuniao">Reunião</option>
+            <option value="entrega">Entrega</option>
+            <option value="prazo">Prazo</option>
+          </select>
+          <select class="filter-select" id="filtro-status" onchange="renderAtividades()">
+            <option value="">Todos os status</option>
+            <option value="pendente">Pendente</option>
+            <option value="andamento">Em andamento</option>
+            <option value="concluido">Concluído</option>
+          </select>
+          <div style="flex:1"></div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('Formulário de nova atividade em breve!')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nova Atividade
+          </button>
+        </div>
+        <div class="atividades-grid" id="atividades-list"></div>
+      </div>
+
+      <!-- ══ CALENDÁRIO ══ -->
+      <div class="page" id="page-calendario">
+        <div class="cal-layout">
+          <div>
+            <div class="cal-header">
+              <div class="cal-month-nav">
+                <button class="cal-nav-btn" onclick="calNav(-1)">
+                  <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div class="cal-month-label" id="cal-label"></div>
+                <button class="cal-nav-btn" onclick="calNav(1)">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+              <button class="btn btn-sm" onclick="calHoje()">Hoje</button>
+            </div>
+            <div class="cal-grid-wrap">
+              <div class="cal-weekdays">
+                <div class="cal-wd">Dom</div><div class="cal-wd">Seg</div>
+                <div class="cal-wd">Ter</div><div class="cal-wd">Qua</div>
+                <div class="cal-wd">Qui</div><div class="cal-wd">Sex</div>
+                <div class="cal-wd">Sáb</div>
+              </div>
+              <div class="cal-days" id="cal-days"></div>
+            </div>
+          </div>
+          <div class="cal-sidebar">
+            <div class="card">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Próximos Eventos
+              </div>
+              <div class="upcoming-list" id="upcoming-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PERFIL ══ -->
+      <div class="page" id="page-perfil">
+        <div class="perfil-header">
+          <div class="perfil-avatar-big" id="perfil-avatar">--</div>
+          <div class="perfil-info">
+            <h2 id="perfil-nome">—</h2>
+            <p id="perfil-cargo">—</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Dados Pessoais
+          </div>
+          <div class="perfil-form-grid">
+            <div class="form-group">
+              <label>Nome completo</label>
+              <input id="pf-nome" type="text" disabled />
+            </div>
+            <div class="form-group">
+              <label>E-mail corporativo</label>
+              <input id="pf-email" type="email" disabled />
+            </div>
+            <div class="form-group">
+              <label>Departamento</label>
+              <input id="pf-dept" type="text" disabled />
+            </div>
+            <div class="form-group">
+              <label>Cargo</label>
+              <input id="pf-cargo" type="text" disabled />
+            </div>
+            <div class="form-group">
+              <label>Ramal</label>
+              <input id="pf-ramal" type="text" placeholder="—" />
+            </div>
+            <div class="form-group">
+              <label>Unidade</label>
+              <input id="pf-unidade" type="text" disabled />
+            </div>
+          </div>
+          <hr class="divider" />
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary btn-sm" onclick="showToast('Dados salvos com sucesso!')">Salvar alterações</button>
+            <button class="btn btn-sm" onclick="showToast('Instruções enviadas para seu e-mail.')">Alterar senha</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- NOTIF PANEL -->
+<div id="notif-panel">
+  <div class="notif-header">
+    Notificações
+    <span class="notif-clear" onclick="clearNotif()">Marcar como lidas</span>
+  </div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════
+ DADOS — substitua por chamadas à API/backend
+═══════════════════════════════════════ */
+
+// Usuários (backend: consultar Active Directory / banco de usuários)
+const USERS = {
+  'admin': { senha:'admin123', nome:'Administrador TI', cargo:'Analista de TI', dept:'TI', unidade:'Matriz', email:'admin@3rmcorp.local', ramal:'101' },
+  'joao.silva': { senha:'123456', nome:'João Silva', cargo:'Técnico de Redes', dept:'Infraestrutura', unidade:'Matriz', email:'joao.silva@3rmcorp.local', ramal:'102' },
+  'ana.costa': { senha:'123456', nome:'Ana Costa', cargo:'Coordenadora RH', dept:'Recursos Humanos', unidade:'Filial', email:'ana.costa@3rmcorp.local', ramal:'201' },
+};
+
+// Avisos do mural (backend: tabela `avisos` no banco de dados)
+const AVISOS = [
+  { tipo:'urgente', titulo:'Manutenção programada da rede', data:'13/06/2026', autor:'TI', corpo:'A infraestrutura de rede passará por manutenção neste sábado das 22h às 02h. Sistemas podem ficar indisponíveis.' },
+  { tipo:'info', titulo:'Novo ramal disponível na Filial', data:'10/06/2026', autor:'TI', corpo:'O ramal 2XX está disponível para colaboradores da unidade Filial. Entre em contato com o TI para configuração.' },
+  { tipo:'aviso', titulo:'Preenchimento da folha de ponto', data:'08/06/2026', autor:'RH', corpo:'Lembrete: o prazo para preenchimento da folha de ponto de maio encerra nesta sexta-feira, 14/06.' },
+  { tipo:'info', titulo:'Bem-vindos à nova intranet C.V!', data:'01/06/2026', autor:'Gestão', corpo:'A intranet foi lançada para centralizar comunicados, atividades e o calendário corporativo. Dúvidas? Fale com o TI.' },
+];
+
+// Atividades (backend: tabela `atividades` — atribuídas a usuário/equipe)
+const ATIVIDADES = [
+  { tipo:'tarefa', titulo:'Atualizar documentação de rede', desc:'Revisar e atualizar a tabela de endereçamento IP após mudanças da última semana.', status:'andamento', data:'20/06/2026', resp:'João Silva' },
+  { tipo:'reuniao', titulo:'Reunião de alinhamento — TI e Gestão', desc:'Apresentação do status do projeto integrador para a coordenação.', status:'pendente', data:'17/06/2026', resp:'Admin TI' },
+  { tipo:'entrega', titulo:'Relatório técnico final', desc:'Entrega do relatório completo com topologia, endereçamento e validações.', status:'pendente', data:'25/06/2026', resp:'Toda a equipe' },
+  { tipo:'prazo', titulo:'Renovação de licenças de software', desc:'Prazo para renovar as licenças do sistema de monitoramento Zabbix.', status:'pendente', data:'30/06/2026', resp:'Admin TI' },
+  { tipo:'tarefa', titulo:'Configurar backup automatizado — Filial', desc:'Script de backup semanal precisa ser implantado na unidade Filial.', status:'concluido', data:'10/06/2026', resp:'João Silva' },
+  { tipo:'reuniao', titulo:'Treinamento GPO — novos colaboradores', desc:'Apresentação das políticas de segurança para os novos integrantes da equipe.', status:'concluido', data:'05/06/2026', resp:'Admin TI' },
+];
+
+// Eventos do calendário (backend: tabela `eventos`)
+const EVENTOS = [
+  { data: new Date(2026,5,17), titulo:'Reunião TI + Gestão', cor:'blue' },
+  { data: new Date(2026,5,20), titulo:'Atualizar docs de rede', cor:'yellow' },
+  { data: new Date(2026,5,25), titulo:'Entrega relatório final', cor:'red' },
+  { data: new Date(2026,5,30), titulo:'Renovação licenças', cor:'red' },
+  { data: new Date(2026,6,4), titulo:'Manutenção preventiva', cor:'yellow' },
+  { data: new Date(2026,6,10), titulo:'Avaliação desempenho', cor:'green' },
+];
+
+// Notificações (backend: tabela `notificacoes`)
+const NOTIFICACOES = [
+  { texto: 'Novo aviso: Manutenção programada neste sábado.', tempo: 'Há 2h' },
+  { texto: 'Atividade "Relatório técnico" vence em 12 dias.', tempo: 'Hoje' },
+  { texto: 'Lembrete: preencher folha de ponto até sexta.', tempo: 'Ontem' },
+];
+
+/* ═══════════════════════════════════════
+   ESTADO
+═══════════════════════════════════════ */
+let currentUser = null;
+let calDate = new Date(2026, 5, 1); // junho 2026
+const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const TODAY = new Date(2026, 5, 13);
+
+/* ═══════════════════════════════════════
+   LOGIN / LOGOUT
+═══════════════════════════════════════ */
+function doLogin() {
+  const u = document.getElementById('inp-user').value.trim().toLowerCase();
+  const p = document.getElementById('inp-pass').value;
+  const user = USERS[u];
+  if (user && user.senha === p) {
+    currentUser = { login: u, ...user };
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    initApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('inp-pass').value = '';
+}
+
+// Enter key no login
+document.getElementById('inp-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('inp-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('inp-pass').focus(); });
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+function initApp() {
+  // topbar date
+  const now = TODAY;
+  const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
+  document.getElementById('topbar-date').textContent = now.toLocaleDateString('pt-BR', opts);
+
+  // mural hero
+  const nome = currentUser.nome.split(' ')[0];
+  const hora = now.getHours();
+  const saud = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+  document.getElementById('mural-saudacao').textContent = `${saud}, ${nome}!`;
+  document.getElementById('mural-subtitulo').textContent = `Confira os avisos e novidades — ${now.toLocaleDateString('pt-BR',{weekday:'long'})}.`;
+  document.getElementById('mural-dia').textContent = now.getDate();
+  document.getElementById('mural-mes').textContent = MONTHS[now.getMonth()].toUpperCase();
+
+  // sidebar user
+  const initials = currentUser.nome.split(' ').map(w=>w[0]).slice(0,2).join('');
+  document.getElementById('sidebar-avatar').textContent = initials;
+  document.getElementById('sidebar-name').textContent = nome;
+  document.getElementById('sidebar-dept').textContent = currentUser.dept;
+
+  // perfil
+  document.getElementById('perfil-avatar').textContent = initials;
+  document.getElementById('perfil-nome').textContent = currentUser.nome;
+  document.getElementById('perfil-cargo').textContent = `${currentUser.cargo} — ${currentUser.unidade}`;
+  document.getElementById('pf-nome').value = currentUser.nome;
+  document.getElementById('pf-email').value = currentUser.email;
+  document.getElementById('pf-dept').value = currentUser.dept;
+  document.getElementById('pf-cargo').value = currentUser.cargo;
+  document.getElementById('pf-ramal').value = currentUser.ramal;
+  document.getElementById('pf-unidade').value = currentUser.unidade;
+
+  // notificações
+  renderNotif();
+
+  // avisos
+  renderAvisos();
+
+  // atividades
+  renderAtividades();
+
+  // calendário
+  renderCal();
+  renderUpcoming();
+}
+
+/* ═══════════════════════════════════════
+   NAVEGAÇÃO
+═══════════════════════════════════════ */
+const PAGE_TITLES = { mural:'Mural Geral', atividades:'Atividades', calendario:'Calendário', perfil:'Meu Perfil' };
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => goPage(item.dataset.page));
+});
+
+function goPage(p) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-page="${p}"]`).classList.add('active');
+  document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[p] || '';
+  closeNotif();
+}
+
+/* ═══════════════════════════════════════
+   MURAL — AVISOS
+═══════════════════════════════════════ */
+function renderAvisos() {
+  const list = document.getElementById('avisos-list');
+  list.innerHTML = AVISOS.map(a => `
+    <div class="aviso-item ${a.tipo}">
+      <div class="aviso-header">
+        <div>
+          <div class="aviso-titulo">${a.titulo}</div>
+          <div class="aviso-meta">${a.data} &middot; ${a.autor}</div>
+        </div>
+        <span class="tag ${a.tipo==='urgente'?'tag-red':a.tipo==='aviso'?'tag-yellow':'tag-blue'}">
+          ${a.tipo.charAt(0).toUpperCase()+a.tipo.slice(1)}
+        </span>
+      </div>
+      <div class="aviso-corpo">${a.corpo}</div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════
+   ATIVIDADES
+═══════════════════════════════════════ */
+const TIPO_ICON = {
+  tarefa: `<svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>`,
+  reuniao: `<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`,
+  entrega: `<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>`,
+  prazo: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+};
+const STATUS_TAG = { pendente:'tag-yellow', andamento:'tag-blue', concluido:'tag-green' };
+const STATUS_LABEL = { pendente:'Pendente', andamento:'Em andamento', concluido:'Concluído' };
+
+function renderAtividades() {
+  const filtroTipo = document.getElementById('filtro-tipo').value;
+  const filtroStatus = document.getElementById('filtro-status').value;
+  const lista = ATIVIDADES.filter(a =>
+    (!filtroTipo || a.tipo === filtroTipo) &&
+    (!filtroStatus || a.status === filtroStatus)
+  );
+  const el = document.getElementById('atividades-list');
+  if (!lista.length) {
+    el.innerHTML = `<div style="text-align:center;padding:48px;color:var(--gray-500);font-size:14px">Nenhuma atividade encontrada.</div>`;
+    return;
+  }
+  el.innerHTML = lista.map(a => `
+    <div class="atividade-card">
+      <div class="atv-icon ${a.tipo}">${TIPO_ICON[a.tipo]}</div>
+      <div class="atv-body">
+        <div class="atv-titulo">${a.titulo}</div>
+        <div class="atv-desc">${a.desc}</div>
+        <div class="atv-footer">
+          <span class="atv-date">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            ${a.data}
+          </span>
+          <span class="atv-resp">${a.resp}</span>
+          <span class="tag ${STATUS_TAG[a.status]}">${STATUS_LABEL[a.status]}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════
+   CALENDÁRIO
+═══════════════════════════════════════ */
+function renderCal() {
+  const y = calDate.getFullYear(), m = calDate.getMonth();
+  document.getElementById('cal-label').textContent = `${MONTHS[m]} ${y}`;
+  const first = new Date(y, m, 1).getDay();
+  const total = new Date(y, m+1, 0).getDate();
+  const prevTotal = new Date(y, m, 0).getDate();
+  let html = '';
+  let cells = 0;
+  for (let i = 0; i < first; i++) {
+    const d = prevTotal - first + i + 1;
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${d}</div></div>`; cells++;
+  }
+  for (let d = 1; d <= total; d++) {
+    const isToday = (y===TODAY.getFullYear() && m===TODAY.getMonth() && d===TODAY.getDate());
+    const evs = EVENTOS.filter(e => e.data.getFullYear()===y && e.data.getMonth()===m && e.data.getDate()===d);
+    const evsHtml = evs.map(e=>`<div class="cal-event ${e.cor}">${e.titulo}</div>`).join('');
+    html += `<div class="cal-day${isToday?' today':''}" onclick="showToast('${d} de ${MONTHS[m]}')">
+      <div class="cal-day-num">${d}</div>${evsHtml}
+    </div>`; cells++;
+  }
+  const remain = 42 - cells;
+  for (let d = 1; d <= remain; d++) {
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${d}</div></div>`;
+  }
+  document.getElementById('cal-days').innerHTML = html;
+}
+
+function calNav(dir) { calDate = new Date(calDate.getFullYear(), calDate.getMonth()+dir, 1); renderCal(); }
+function calHoje() { calDate = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1); renderCal(); }
+
+function renderUpcoming() {
+  const sorted = [...EVENTOS].sort((a,b)=>a.data-b.data).filter(e=>e.data>=TODAY).slice(0,5);
+  const colors = { red:'#B91C1C', blue:'#1E40AF', green:'#065F46', yellow:'#92400E' };
+  document.getElementById('upcoming-list').innerHTML = sorted.map(e=>`
+    <div class="upcoming-item">
+      <div class="upcoming-dot" style="background:${colors[e.cor]||'#888'}"></div>
+      <div>
+        <div class="upcoming-text">${e.titulo}</div>
+        <div class="upcoming-sub">${e.data.toLocaleDateString('pt-BR',{day:'2-digit',month:'long'})}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════
+   NOTIFICAÇÕES
+═══════════════════════════════════════ */
+function renderNotif() {
+  document.getElementById('notif-list').innerHTML = NOTIFICACOES.map(n=>`
+    <div class="notif-item">
+      <div class="notif-bullet"></div>
+      <div>
+        <div class="notif-text">${n.texto}</div>
+        <div class="notif-time">${n.tempo}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('notif-dot').style.display = NOTIFICACOES.length ? 'block' : 'none';
+}
+
+function toggleNotif() {
+  document.getElementById('notif-panel').classList.toggle('open');
+}
+function closeNotif() { document.getElementById('notif-panel').classList.remove('open'); }
+function clearNotif() {
+  document.getElementById('notif-dot').style.display = 'none';
+  document.getElementById('notif-list').innerHTML = `<div style="padding:20px;text-align:center;color:var(--gray-500);font-size:13px">Nenhuma notificação.</div>`;
+}
+
+// Clique fora fecha notif
+document.addEventListener('click', e => {
+  const panel = document.getElementById('notif-panel');
+  const btn = document.querySelector('.topbar-icon-btn');
+  if (!panel.contains(e.target) && !btn.contains(e.target)) closeNotif();
+});
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>

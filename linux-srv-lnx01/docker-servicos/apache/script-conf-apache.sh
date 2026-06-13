@@ -1,19 +1,10 @@
 #!/bin/bash
 
-# Instalando Git
-apt install git -y
-
 # Criando Diretórios Necessários
 cd
 mkdir -p config-apache
 mkdir /etc/apache2/
 mkdir /etc/apache2/html/
-
-# Criando e Definindo Site
-cd /etc/apache2/html/
-touch index.html
-
-git clone https://github.com/john5dbr/blasphem-fortze.git
 
 # Criando e Definindo Conteiner Apache2
 cd
@@ -31,7 +22,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - /etc/apache2/html/blasphem-fortze/:/usr/local/apache2/htdocs/
+      - ~/projeto-do-careca/linux-srv-lnx01/docker-servicos/apache/intranet:/usr/local/apache2/htdocs/
     
     # 🔐 LIMITAÇÃO DE RECURSOS (Baseado no seu Proxmox de 3 Cores / 6GB RAM)
     deploy:
