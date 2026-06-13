@@ -1,10 +1,24 @@
 #!/bin/bash
 
+# Instalando Git
+apt install git -y
+
+#limpando configurações antigas
+#rm -rf config-apache
+#rm -rf /etc/apache2/
+#rm -rf /etc/apache2/html/
+
+
 # Criando Diretórios Necessários
 cd
 mkdir -p config-apache
 mkdir /etc/apache2/
 mkdir /etc/apache2/html/
+
+# Criando e Definindo Site
+cp ~/projeto-do-careca/linux-srv-lnx01/docker-servicos/apache/intranet/index.html /etc/apache2/html/
+cp ~/projeto-do-careca/linux-srv-lnx01/docker-servicos/apache/intranet/style.css /etc/apache2/html/
+cp ~/projeto-do-careca/linux-srv-lnx01/docker-servicos/apache/intranet/script.js /etc/apache2/html/
 
 # Criando e Definindo Conteiner Apache2
 cd
@@ -22,7 +36,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ~/projeto-do-careca/linux-srv-lnx01/docker-servicos/apache/intranet:/usr/local/apache2/htdocs/
+      - /etc/apache2/html/:/usr/local/apache2/htdocs/
     
     # 🔐 LIMITAÇÃO DE RECURSOS (Baseado no seu Proxmox de 3 Cores / 6GB RAM)
     deploy:
