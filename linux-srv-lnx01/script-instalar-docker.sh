@@ -23,4 +23,5 @@ apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docke
 
 # Inicia e habilita o serviço do Docker para rodar automaticamente no boot
 systemctl enable --now docker
-systemctl status docker.service
+
+docker network create rede-servicos
