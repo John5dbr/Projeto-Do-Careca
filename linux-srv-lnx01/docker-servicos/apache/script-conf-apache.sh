@@ -3,12 +3,6 @@
 # Instalando Git
 apt install git -y
 
-#limpando configurações antigas
-#rm -rf config-apache
-#rm -rf /etc/apache2/
-#rm -rf /etc/apache2/html/
-
-
 # Criando Diretórios Necessários
 cd
 mkdir -p config-apache

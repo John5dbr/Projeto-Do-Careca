@@ -16,7 +16,3 @@ echo "=================="
 
 figlet Execucao Concluida
 echo "Exemplo de comando para acesso remoto:  ssh Usuario@Ip-Do-Servidor"
-
-
-
-
