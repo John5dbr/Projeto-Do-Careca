@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 echo "Baixando SSH"
 apt install openssh-server openssh-client curl wget gpg figlet -y
