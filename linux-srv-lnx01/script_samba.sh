@@ -221,7 +221,7 @@ quotatool -u mkt_copywriter3 -b -q 2000M -l 2000M /
 
 echo "--- CONFIGURANDO SMB.CONF ---"
 
-cat <<EOF > /etc/samba/smb.conf
+cat << EOF > /etc/samba/smb.conf
 [global]
     workgroup = WORKGROUP
     security = user
@@ -271,8 +271,7 @@ cat <<EOF > /etc/samba/smb.conf
     veto files = /.bat/.exe/.mp3/.zip/.iso/.rar/.msi/.vbs/
 EOF
 
-# 5. Reiniciar serviços
+# 5. Reiniciar servicos
 systemctl restart smbd nmbd
 
 echo "--- FINALIZADO COM SUCESSO! ---"
-echo "--- Autor: Victor Gabriel ---"
